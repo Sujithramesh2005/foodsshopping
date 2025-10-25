@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section bg-success text-white text-center py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Welcome to Raamer Foods</h1>
+        <p class="lead">Premium Quality Food Products - Vermicelli, Noodles, Flour & More</p>
+        <a href="{{ url_for('products') }}" class="btn btn-light btn-lg mt-3">Shop Now</a>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Our Product Categories</h2>
+    <div class="row g-4">
+        {% for category in categories %}
+        <div class="col-md-4 col-lg-3">
+            <div class="card category-card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">{{ category.name }}</h5>
+                    <p class="card-text text-muted">{{ category.description }}</p>
+                    <a href="{{ url_for('products', category_name=category.name) }}" class="btn btn-success btn-sm">View Products</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Why Choose Us</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-certificate fa-3x text-success mb-3"></i>
+                    <h5>Quality Products</h5>
+                    <p>We provide only the best quality products sourced from trusted suppliers.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-tags fa-3x text-success mb-3"></i>
+                    <h5>Affordable Prices</h5>
+                    <p>Competitive pricing to ensure you get the best value for your money.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-shipping-fast fa-3x text-success mb-3"></i>
+                    <h5>Fast Delivery</h5>
+                    <p>Quick and reliable delivery right to your doorstep.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Latest Products</h2>
+    <div class="row g-4">
+        {% for product in latest_products[:8] %}
+        <div class="col-md-3">
+            <div class="card product-card h-100 shadow-sm">
+                <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="cursor: pointer;">
+                </a>
+                <div class="card-body">
+                    <span class="badge bg-success mb-2">{{ product.category.name }}</span>
+                    <h6 class="card-title">
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="text-decoration-none text-dark">
+                            {{ product.name }}
+                        </a>
+                    </h6>
+                    <p class="text-success fw-bold">₹{{ product.price }}</p>
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-success btn-sm w-100 mb-2">View Details</a>
+                    <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-success btn-sm w-100">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if trending_products %}
+<div class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Trending Products</h2>
+        <div class="row g-4">
+            {% for product in trending_products %}
+            <div class="col-md-3">
+                <div class="card product-card h-100 shadow-sm">
+                    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body">
+                        <span class="badge bg-danger mb-2">Trending</span>
+                        <h6 class="card-title">{{ product.name }}</h6>
+                        <p class="text-success fw-bold">₹{{ product.price }}</p>
+                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-success btn-sm w-100">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

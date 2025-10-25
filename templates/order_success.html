@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Order Successful - Raamer Foods{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+                    <h2 class="text-success mb-3">Order Placed Successfully!</h2>
+                    <p class="lead">Thank you for your order. We'll process it shortly.</p>
+                    
+                    <div class="alert alert-info mt-4">
+                        <h5>Order Details</h5>
+                        <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                        <p><strong>Status:</strong> {{ order.status }}</p>
+                        <p><strong>Date:</strong> {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    </div>
+
+                    <div class="bg-light p-4 rounded mt-4">
+                        <h6>Delivery Address:</h6>
+                        <p>{{ order.customer_name }}<br>
+                        {{ order.customer_address }}<br>
+                        Phone: {{ order.customer_phone }}<br>
+                        Email: {{ order.customer_email }}</p>
+                    </div>
+
+                    <div class="mt-4">
+                        <h6>Order Items:</h6>
+                        <div class="list-group text-start mt-3">
+                            {% for item in order.items %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                                    <strong>₹{{ item.price * item.quantity }}</strong>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <a href="{{ url_for('products') }}" class="btn btn-success btn-lg me-2">Continue Shopping</a>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-success btn-lg">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

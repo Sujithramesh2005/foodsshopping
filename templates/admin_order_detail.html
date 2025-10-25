@@ -1,0 +1,121 @@
+{% extends "admin_base.html" %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Order #{{ order.id }}</h2>
+    <a href="{{ url_for('admin_orders') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Orders
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Order Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>₹{{ item.price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ item.price * item.quantity }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="table-active">
+                                <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
+                                <td><strong>₹{{ order.total_amount }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Update Order Status</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_update_order_status', order_id=order.id) }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <select class="form-select" name="status" required>
+                                <option value="Pending Payment" {% if order.status == 'Pending Payment' %}selected{% endif %}>Pending Payment</option>
+                                <option value="Payment Received" {% if order.status == 'Payment Received' %}selected{% endif %}>Payment Received</option>
+                                <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+                                <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success w-100">Update Status</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Customer Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Name:</strong><br>{{ order.customer_name }}</p>
+                <p><strong>Email:</strong><br>{{ order.customer_email }}</p>
+                <p><strong>Phone:</strong><br>{{ order.customer_phone }}</p>
+                <p><strong>Address:</strong><br>{{ order.customer_address }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Order Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Order Date:</strong><br>{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                <p><strong>Status:</strong><br>
+                    <span class="badge 
+                        {% if 'Received' in order.status %}bg-success
+                        {% elif 'Pending' in order.status %}bg-warning
+                        {% elif 'Shipped' in order.status %}bg-info
+                        {% else %}bg-secondary{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </p>
+                <p><strong>Payment Method:</strong><br>{{ order.payment_method or 'N/A' }}</p>
+                <p><strong>Total Amount:</strong><br><span class="fs-5 text-success">₹{{ order.total_amount }}</span></p>
+            </div>
+        </div>
+
+        {% if order.razorpay_order_id %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Payment Details</h5>
+            </div>
+            <div class="card-body">
+                <p class="small"><strong>Razorpay Order ID:</strong><br>{{ order.razorpay_order_id }}</p>
+                {% if order.razorpay_payment_id %}
+                <p class="small"><strong>Payment ID:</strong><br>{{ order.razorpay_payment_id }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

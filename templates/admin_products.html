@@ -1,0 +1,176 @@
+{% extends "admin_base.html" %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Products Management</h2>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">
+        <i class="fas fa-plus"></i> Add Product
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Trending</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td><img src="{{ product.image_url }}" width="50" alt="{{ product.name }}"></td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category.name }}</td>
+                        <td>₹{{ product.price }}</td>
+                        <td>{{ product.stock }}</td>
+                        <td>
+                            {% if product.is_trending %}
+                            <span class="badge bg-success">Yes</span>
+                            {% else %}
+                            <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editProduct({{ product.id }}, '{{ product.name }}', '{{ product.description }}', {{ product.price }}, {{ product.category_id }}, '{{ product.image_url }}', {{ product.stock }}, {{ product.is_trending|lower }})">
+                                Edit
+                            </button>
+                            <a href="{{ url_for('admin_delete_product', product_id=product.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin_add_product') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Price (₹)</label>
+                        <input type="number" class="form-control" name="price" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category_id" required>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image URL</label>
+                        <input type="text" class="form-control" name="image_url">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" name="stock" value="100" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" name="is_trending" id="is_trending">
+                        <label class="form-check-label" for="is_trending">Mark as Trending</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="editProductForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control" name="name" id="edit_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" id="edit_description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Price (₹)</label>
+                        <input type="number" class="form-control" name="price" id="edit_price" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category_id" id="edit_category_id" required>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image URL</label>
+                        <input type="text" class="form-control" name="image_url" id="edit_image_url">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" name="stock" id="edit_stock" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" name="is_trending" id="edit_is_trending">
+                        <label class="form-check-label" for="edit_is_trending">Mark as Trending</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editProduct(id, name, description, price, category_id, image_url, stock, is_trending) {
+    document.getElementById('editProductForm').action = "{{ url_for('admin_edit_product', product_id=0) }}".replace('0', id);
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_description').value = description;
+    document.getElementById('edit_price').value = price;
+    document.getElementById('edit_category_id').value = category_id;
+    document.getElementById('edit_image_url').value = image_url;
+    document.getElementById('edit_stock').value = stock;
+    document.getElementById('edit_is_trending').checked = is_trending;
+    
+    var modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

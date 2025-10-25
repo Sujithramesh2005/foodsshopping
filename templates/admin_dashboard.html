@@ -1,0 +1,105 @@
+{% extends "admin_base.html" %}
+
+{% block admin_content %}
+<h2 class="mb-4">Dashboard</h2>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">Total Orders</h6>
+                        <h2 class="mb-0">{{ total_orders }}</h2>
+                    </div>
+                    <i class="fas fa-shopping-bag fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">Total Products</h6>
+                        <h2 class="mb-0">{{ total_products }}</h2>
+                    </div>
+                    <i class="fas fa-box fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">Pending Orders</h6>
+                        <h2 class="mb-0">{{ pending_orders }}</h2>
+                    </div>
+                    <i class="fas fa-clock fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">Total Revenue</h6>
+                        <h2 class="mb-0">₹{{ "%.2f"|format(total_revenue) }}</h2>
+                    </div>
+                    <i class="fas fa-rupee-sign fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Recent Orders</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>₹{{ order.total_amount }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if 'Received' in order.status %}bg-success
+                                {% elif 'Pending' in order.status %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="btn btn-sm btn-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - Raamer Foods{% endblock %}
+
+{% block content %}
+<div class="bg-success text-white text-center py-4">
+    <div class="container">
+        <h1><i class="fas fa-box"></i> My Orders</h1>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Track Your Orders</h5>
+            <form method="GET" action="{{ url_for('orders') }}" class="row g-3">
+                <div class="col-md-5">
+                    <input type="email" class="form-control" name="email" placeholder="Enter your email" value="{{ request.args.get('email', '') }}">
+                </div>
+                <div class="col-md-5">
+                    <input type="tel" class="form-control" name="phone" placeholder="Or your phone number" value="{{ request.args.get('phone', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if orders %}
+    <h4 class="mb-4">Your Orders</h4>
+    {% for order in orders %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>Order #{{ order.id }}</h5>
+                    <p class="text-muted mb-2">Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge 
+                            {% if 'Received' in order.status %}bg-success
+                            {% elif 'Pending' in order.status %}bg-warning
+                            {% elif 'Shipped' in order.status %}bg-info
+                            {% else %}bg-secondary{% endif %}">
+                            {{ order.status }}
+                        </span>
+                    </p>
+                    <p><strong>Total:</strong> ₹{{ order.total_amount }}</p>
+                    <p><strong>Items:</strong></p>
+                    <ul class="list-unstyled">
+                        {% for item in order.items %}
+                        <li>{{ item.product.name }} × {{ item.quantity }} - ₹{{ item.price * item.quantity }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-md-4 text-end">
+                    <p><strong>Delivery To:</strong></p>
+                    <p class="text-muted">{{ order.customer_name }}<br>
+                    {{ order.customer_address }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-box-open fa-5x text-muted mb-3"></i>
+        <h3>No orders found</h3>
+        <p class="text-muted">Enter your email or phone number to view your orders.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "admin_base.html" %}
+
+{% block admin_content %}
+<h2 class="mb-4">Orders Management</h2>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>{{ order.customer_email }}</td>
+                        <td>{{ order.customer_phone }}</td>
+                        <td>₹{{ order.total_amount }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if 'Received' in order.status %}bg-success
+                                {% elif 'Pending' in order.status %}bg-warning
+                                {% elif 'Shipped' in order.status %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>{{ order.payment_method or 'N/A' }}</td>
+                        <td>{{ order.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

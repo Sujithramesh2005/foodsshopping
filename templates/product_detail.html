@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Raamer Foods{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('products') }}">Products</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('products', category_name=product.category.name) }}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 400px; object-fit: cover;">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <span class="badge bg-success mb-2">{{ product.category.name }}</span>
+            <h1 class="mb-3">{{ product.name }}</h1>
+            
+            {% if product.description %}
+            <p class="lead text-muted">{{ product.description }}</p>
+            {% endif %}
+
+            <hr>
+
+            <div class="mb-4">
+                <h3 class="text-success">₹{{ product.price }}</h3>
+                <p class="text-muted">
+                    {% if product.stock > 0 %}
+                    <i class="fas fa-check-circle text-success"></i> In Stock ({{ product.stock }} available)
+                    {% else %}
+                    <i class="fas fa-times-circle text-danger"></i> Out of Stock
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if product.stock > 0 %}
+            <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" required>
+                    </div>
+                    <div class="col-md-8 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle"></i> This product is currently out of stock. Please check back later.
+            </div>
+            {% endif %}
+
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Product Information</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Category:</strong> {{ product.category.name }}</li>
+                        <li><strong>Price:</strong> ₹{{ product.price }}</li>
+                        <li><strong>Stock Status:</strong> 
+                            {% if product.stock > 0 %}
+                            <span class="text-success">Available</span>
+                            {% else %}
+                            <span class="text-danger">Out of Stock</span>
+                            {% endif %}
+                        </li>
+                        {% if product.is_trending %}
+                        <li><strong>Status:</strong> <span class="badge bg-danger">Trending Product</span></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">Related Products</h3>
+            <div class="row g-4">
+                {% for related_product in product.category.products[:4] %}
+                {% if related_product.id != product.id %}
+                <div class="col-md-3">
+                    <div class="card product-card h-100 shadow-sm">
+                        <img src="{{ related_product.image_url }}" class="card-img-top" alt="{{ related_product.name }}">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ related_product.name }}</h6>
+                            <p class="text-success fw-bold">₹{{ related_product.price }}</p>
+                            <a href="{{ url_for('product_detail', product_id=related_product.id) }}" class="btn btn-outline-success btn-sm w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
